@@ -205,28 +205,52 @@ void bresenhamLine(int x0, int y0, int x1, int y1, void (*operation)(int, int)) 
 }
 
 //x, y in VSLIDE coordinates
+//assumes DL_WIDTH > 0
 void updateVBarRow(int x, int y) {
     if (VBARRED[y]) {
         return;
     }
     if (y >= DL_Y0 && y < DL_Y0+DL_HEIGHT) {
+        //left space
+        VSLIDE[y] = std::string(x, ' ');
+
+        //vbar row
         int dly = y - DL_Y0;
+        bool inDL = (x >= DL_X0 && x < DL_X0+DL_WIDTH);
         for (int dx=0; dx < VBAR_WIDTH; ++dx) {
             int tx = x + dx;
 
+            //update inDL
+            if (tx == DL_X0) {
+                inDL = true;
+            }
+            else if (tx == DL_X0+DL_WIDTH) {
+                VSLIDE[y] += std::string(VBAR_WIDTH-dx, '*');
+                break;
+            }
+
             //digital life
-            if (tx >= DL_X0 && tx < DL_X0+DL_WIDTH) {
+            if (inDL) {
                 int dlx = tx - DL_X0;
                 std::string s = digitalLife[dly][dlx];
-                if (/*s != " " &&*/ dx+stringWidth(s) <= VBAR_WIDTH) {
-                    overwriteIndexU8(VSLIDE[y], tx, s);
+                if (s == "*") {
+                    if (dx == 0) {
+                        VSLIDE[y] += s;
+                    }
+                    continue;
+                }
+                else if (s != " " && dx+stringWidth(s) <= VBAR_WIDTH) {
+                    VSLIDE[y] += s;
                     continue;
                 }
             }
 
             //fill
-            VSLIDE[y][tx] = '*';
+            VSLIDE[y] += "*";
         }
+
+        //right space
+        VSLIDE[y] += std::string(VSLIDE_WIDTH-x-VBAR_WIDTH, ' ');
     }
     else {
         for (int tx=x; tx < x+VBAR_WIDTH; ++tx) {
@@ -234,7 +258,6 @@ void updateVBarRow(int x, int y) {
         }
     }
     VBARRED[y] = true;
-    int debug = stringWidth(VSLIDE[y]);
     //assert(stringWidth(VSLIDE[y]) == VSLIDE_WIDTH);
 }
 

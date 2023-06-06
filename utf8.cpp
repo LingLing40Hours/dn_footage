@@ -162,7 +162,7 @@ int charWidth(char32_t c) {
     //const wchar_t* utf16data = utf16str.data(); // Get pointer to UTF-16 data
     //wchar_t w = utf16data[0];
     //return wcwidth(w);
-    if (c == U'゜' || c == U'つ' || c == U'ロ' || c == U'レ') {
+    if (c == U'゜' || c == U'つ' || c == U'ロ' || c == U'レ' || c == U'◽') {
         return 2;
     }
     return 1;
